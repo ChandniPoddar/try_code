@@ -122,7 +122,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
               slivers: [
                 SliverAppBar(
                   pinned: true,
-                  expandedHeight: 220,
+                  expandedHeight: 240,
                   backgroundColor: theme.appBarTheme.backgroundColor,
                   iconTheme: theme.appBarTheme.iconTheme,
                   flexibleSpace: FlexibleSpaceBar(
@@ -137,8 +137,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              // 🌟 Optimized: Reduced top opacity to prevent "white fog" look
-                              theme.scaffoldBackgroundColor.withValues(alpha: 0.15),
+                              theme.scaffoldBackgroundColor.withValues(alpha: 0.2),
                               Colors.transparent,
                               theme.scaffoldBackgroundColor
                             ],
@@ -156,62 +155,75 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.shopping_cart_outlined, size: 80, color: primaryColor.withValues(alpha: 0.3)),
+                          Icon(Icons.shopping_cart_outlined, size: 80, color: primaryColor.withValues(alpha: 0.2)),
                           const SizedBox(height: 16),
-                          Text('This outlet cart is empty!', style: GoogleFonts.poppins(color: subTextColor, fontSize: 16)),
+                          Text('Your cart is clear and elegant.', style: GoogleFonts.poppins(color: subTextColor, fontSize: 16, fontWeight: FontWeight.w500)),
                         ],
                       ),
                     ),
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final cartItem = items[index];
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: theme.cardTheme.color,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: textColor.withValues(alpha: 0.05)),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: primaryColor.withValues(alpha: 0.05)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: theme.brightness == Brightness.dark ? 0.3 : 0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                                  color: primaryColor.withValues(alpha: theme.brightness == Brightness.dark ? 0.3 : 0.08),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 6),
                                 )
                               ],
                             ),
                             child: Row(children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: CachedNetworkImage(
-                                  imageUrl: cartItem.foodItem.imageUrl,
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (context, url, error) => Icon(Icons.fastfood, color: primaryColor),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 10)]
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: CachedNetworkImage(
+                                    imageUrl: cartItem.foodItem.imageUrl,
+                                    width: 85,
+                                    height: 85,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) => Icon(Icons.fastfood, color: primaryColor, size: 30),
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 15),
+                              const SizedBox(width: 18),
                               Expanded(
                                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                  Text(cartItem.foodItem.name, style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 15)),
-                                  Text('₹${cartItem.foodItem.price} per unit', style: GoogleFonts.poppins(color: subTextColor, fontSize: 12)),
+                                  Text(cartItem.foodItem.name, style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const SizedBox(height: 4),
+                                  Text('₹${cartItem.foodItem.price} per unit', style: GoogleFonts.poppins(color: subTextColor, fontSize: 13)),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      _buildQuantityBtn(Icons.remove, () => cart.removeSingleItem(cartItem.foodItem.id), theme),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                                        child: Text('${cartItem.quantity}', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                                      ),
+                                      _buildQuantityBtn(Icons.add, () => cart.addItem(cartItem.foodItem), theme),
+                                    ],
+                                  ),
                                 ]),
                               ),
-                              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                                Text('₹${(cartItem.foodItem.price * cartItem.quantity).toStringAsFixed(2)}', style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 15)),
-                                const SizedBox(height: 8),
-                                Row(mainAxisSize: MainAxisSize.min, children: [
-                                  IconButton(padding: EdgeInsets.zero, constraints: const BoxConstraints(), icon: const Icon(Icons.remove_circle_outline, color: Colors.red, size: 22), onPressed: () => cart.removeSingleItem(cartItem.foodItem.id)),
-                                  const SizedBox(width: 12),
-                                  IconButton(padding: EdgeInsets.zero, constraints: const BoxConstraints(), icon: const Icon(Icons.add_circle_outline, color: Colors.green, size: 22), onPressed: () => cart.addItem(cartItem.foodItem)),
-                                ]),
-                              ]),
+                              Text(
+                                '₹${(cartItem.foodItem.price * cartItem.quantity).toStringAsFixed(0)}',
+                                style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
                             ]),
                           );
                         },
@@ -222,22 +234,25 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                 if (items.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.all(24),
-                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(28),
+                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                       decoration: BoxDecoration(
-                        color: theme.cardTheme.color?.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(25),
-                        border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
+                        color: theme.cardTheme.color,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: primaryColor.withValues(alpha: 0.15), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 25, offset: const Offset(0, 10))
+                        ],
                       ),
                       child: Column(children: [
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Text('Outlet Total', style: GoogleFonts.poppins(color: subTextColor, fontSize: 16)),
-                          Text('₹${totalAmount.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: primaryColor, fontSize: 24, fontWeight: FontWeight.bold)),
+                          Text('Order Total', style: GoogleFonts.poppins(color: subTextColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text('₹${totalAmount.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: primaryColor, fontSize: 28, fontWeight: FontWeight.bold)),
                         ]),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 28),
                         SizedBox(
                           width: double.infinity,
-                          height: 55,
+                          height: 60,
                           child: ElevatedButton(
                             onPressed: () async {
                               if (Platform.isAndroid || Platform.isIOS) {
@@ -245,23 +260,37 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                               } else {
                                 final error = await cart.placeOrder(specificOutlet: widget.outletName);
                                 if (error == null) {
-                                  Fluttertoast.showToast(msg: "Order Success!");
+                                  Fluttertoast.showToast(msg: "Order Placed! Bon Appétit.");
                                   if (!mounted) return;
                                   Navigator.pop(context);
                                 }
                               }
                             },
-                            child: const Text('COMPLETE ORDER'),
+                            child: const Text('COMPLETE PAYMENT'),
                           ),
                         ),
                       ]),
                     ),
                   ),
-                const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
+                const SliverPadding(padding: EdgeInsets.only(bottom: 60)),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildQuantityBtn(IconData icon, VoidCallback onTap, ThemeData theme) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: theme.primaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: theme.primaryColor, size: 18),
       ),
     );
   }

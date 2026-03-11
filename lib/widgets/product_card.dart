@@ -15,23 +15,26 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.primaryColor;
+    final textColor = theme.colorScheme.onSurface;
+
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+            color: primaryColor.withValues(alpha: theme.brightness == Brightness.dark ? 0.3 : 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🌟 Intelligent Image Section (Supports Assets & Network)
           Expanded(
             flex: 4,
             child: ClipRRect(
@@ -40,45 +43,29 @@ class ProductCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   foodItem.imageUrl.isEmpty
-                      ? _buildPlaceholder()
+                      ? _buildPlaceholder(primaryColor)
                       : foodItem.imageUrl.startsWith('assets')
-                          ? Image.asset(
-                              foodItem.imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
-                            )
+                          ? Image.asset(foodItem.imageUrl, fit: BoxFit.cover)
                           : CachedNetworkImage(
                               imageUrl: foodItem.imageUrl,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: Colors.grey[900],
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Color(0xFFFFD700),
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => _buildPlaceholder(),
+                              placeholder: (context, url) => Container(color: theme.scaffoldBackgroundColor.withValues(alpha: 0.1)),
+                              errorWidget: (context, url, error) => _buildPlaceholder(primaryColor),
                             ),
-                  // Price Tag Overlay
+                  // Stylish Price Tag
                   Positioned(
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFFFFD700).withOpacity(0.5)),
+                        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         '₹${foodItem.price}',
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFFFFD700),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
+                        style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
                   ),
@@ -87,11 +74,10 @@ class ProductCard extends StatelessWidget {
             ),
           ),
 
-          // Info Section
           Expanded(
             flex: 3,
             child: Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -99,26 +85,19 @@ class ProductCard extends StatelessWidget {
                     foodItem.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
+                    style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 14),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Expanded(
                     child: Text(
                       foodItem.description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white60,
-                        fontSize: 9,
-                      ),
+                      style: GoogleFonts.poppins(color: textColor.withValues(alpha: 0.6), fontSize: 10),
                     ),
                   ),
 
-                  // Add to Cart Button
+                  // Add to Cart Button - Themed
                   Align(
                     alignment: Alignment.bottomRight,
                     child: InkWell(
@@ -127,28 +106,23 @@ class ProductCard extends StatelessWidget {
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            backgroundColor: const Color(0xFFFFD700),
+                            backgroundColor: primaryColor,
                             content: Text(
                               '${foodItem.name} added to cart',
-                              style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                             duration: const Duration(seconds: 1),
                           ),
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFD700),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFFFD700).withOpacity(0.3),
-                              blurRadius: 6,
-                            ),
-                          ],
+                          color: primaryColor,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [BoxShadow(color: primaryColor.withValues(alpha: 0.3), blurRadius: 8)],
                         ),
-                        child: const Icon(Icons.add_shopping_cart, color: Colors.black, size: 16),
+                        child: const Icon(Icons.add_shopping_cart_rounded, color: Colors.white, size: 18),
                       ),
                     ),
                   ),
@@ -161,10 +135,10 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(Color color) {
     return Container(
-      color: Colors.grey[900],
-      child: const Icon(Icons.fastfood, color: Color(0xFFFFD700), size: 40),
+      color: Colors.grey[200],
+      child: Icon(Icons.fastfood_rounded, color: color.withValues(alpha: 0.3), size: 40),
     );
   }
 }

@@ -30,8 +30,11 @@ class MyApp extends StatelessWidget {
       create: (_) => ThemeProvider(),
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
-          const Color lightPrimary = Color(0xFF800020); // Royal Burgundy
-          const Color darkPrimary = Color(0xFFD4AF37); // Champagne Gold
+          // 🌟 Unique Gourmet Palette
+          const Color gourmetCream = Color(0xFFFDF8F5); 
+          const Color velvetBurgundy = Color(0xFF6B0F1A);
+          const Color warmTerracotta = Color(0xFFBC4749);
+          const Color deepSlate = Color(0xFF2D3436);
 
           return MultiProvider(
             providers: [
@@ -43,56 +46,115 @@ class MyApp extends StatelessWidget {
               title: 'Global Eats',
               themeMode: themeProvider.themeMode,
               
+              // 🌟 Unique & Professional Light Theme
               theme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.light,
-                primaryColor: lightPrimary,
-                scaffoldBackgroundColor: const Color(0xFFFDFBF7),
+                primaryColor: velvetBurgundy,
+                scaffoldBackgroundColor: gourmetCream,
+                
                 colorScheme: ColorScheme.light(
-                  primary: lightPrimary,
-                  secondary: const Color(0xFFB76E79),
+                  primary: velvetBurgundy,
+                  secondary: warmTerracotta,
                   surface: Colors.white,
-                  onSurface: const Color(0xFF2C3E50),
+                  onSurface: deepSlate,
+                  surfaceContainerHighest: Colors.white,
                 ),
-                navigationBarTheme: NavigationBarThemeData(
-                  backgroundColor: Colors.white.withValues(alpha: 0.8),
-                  indicatorColor: lightPrimary.withValues(alpha: 0.1),
-                  labelTextStyle: WidgetStateProperty.all(
-                    GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: const Color(0xFF2C3E50))
-                  ),
+
+                // Professional Typography
+                textTheme: GoogleFonts.poppinsTextTheme().apply(
+                  bodyColor: deepSlate,
+                  displayColor: velvetBurgundy,
+                ).copyWith(
+                  headlineLarge: GoogleFonts.monoton(color: velvetBurgundy, letterSpacing: 2),
+                  titleLarge: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: deepSlate),
+                  bodyLarge: GoogleFonts.poppins(color: deepSlate, letterSpacing: 0.2),
                 ),
+
                 appBarTheme: AppBarTheme(
-                  backgroundColor: const Color(0xFFFDFBF7),
+                  backgroundColor: gourmetCream,
                   elevation: 0,
                   centerTitle: true,
-                  titleTextStyle: GoogleFonts.poppins(color: lightPrimary, fontSize: 20, fontWeight: FontWeight.bold),
-                  iconTheme: const IconThemeData(color: lightPrimary),
+                  titleTextStyle: GoogleFonts.poppins(
+                    color: velvetBurgundy, 
+                    fontSize: 22, 
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1
+                  ),
+                  iconTheme: const IconThemeData(color: velvetBurgundy),
+                ),
+
+                cardTheme: CardThemeData(
+                  color: Colors.white,
+                  elevation: 8,
+                  shadowColor: velvetBurgundy.withValues(alpha: 0.08),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    side: BorderSide(color: velvetBurgundy.withValues(alpha: 0.05)),
+                  ),
+                ),
+
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: velvetBurgundy,
+                    foregroundColor: Colors.white,
+                    elevation: 4,
+                    shadowColor: velvetBurgundy.withValues(alpha: 0.3),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    textStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold, letterSpacing: 1),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  ),
+                ),
+
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: velvetBurgundy.withValues(alpha: 0.1)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: velvetBurgundy.withValues(alpha: 0.1)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: velvetBurgundy, width: 1.5),
+                  ),
                 ),
               ),
 
+              // 🌟 Premium Dark Theme
               darkTheme: ThemeData(
                 useMaterial3: true,
                 brightness: Brightness.dark,
-                primaryColor: darkPrimary,
+                primaryColor: const Color(0xFFD4AF37),
                 scaffoldBackgroundColor: const Color(0xFF121212),
                 colorScheme: const ColorScheme.dark(
-                  primary: darkPrimary,
+                  primary: Color(0xFFD4AF37),
                   secondary: Color(0xFFE5C76B),
                   surface: Color(0xFF1E1E1E),
                   onSurface: Colors.white,
                 ),
-                navigationBarTheme: NavigationBarThemeData(
-                  backgroundColor: const Color(0xFF1E1E1E).withValues(alpha: 0.8),
-                  indicatorColor: darkPrimary.withValues(alpha: 0.1),
-                  labelTextStyle: WidgetStateProperty.all(
-                    GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.white)
-                  ),
-                ),
+                textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
                 appBarTheme: const AppBarTheme(
                   backgroundColor: Color(0xFF121212),
                   elevation: 0,
                   centerTitle: true,
-                  iconTheme: IconThemeData(color: darkPrimary),
+                  iconTheme: IconThemeData(color: Color(0xFFD4AF37)),
+                ),
+                cardTheme: CardThemeData(
+                  color: const Color(0xFF1E1E1E),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                ),
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD4AF37),
+                    foregroundColor: Colors.black,
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  ),
                 ),
               ),
               home: const SplashScreen(),

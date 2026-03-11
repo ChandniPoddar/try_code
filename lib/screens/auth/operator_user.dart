@@ -112,7 +112,7 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
                         ),
                       ),
                       const SizedBox(height: 40),
-                      
+
                       Text(
                         "GLOBAL EATS",
                         style: GoogleFonts.monoton(
