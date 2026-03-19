@@ -1,132 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import 'package:ggi_canteen/models/food_item.dart';
 import '../../widgets/product_card.dart';
+import '../../providers/cart_provider.dart';
+import 'cart_screen.dart';
 
-class CanteenScreen extends StatelessWidget {
+class CanteenScreen extends StatefulWidget {
   const CanteenScreen({super.key});
 
   @override
+  State<CanteenScreen> createState() => _CanteenScreenState();
+}
+
+class _CanteenScreenState extends State<CanteenScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // ✅ Mock Canteen Products (12 items)
+    final theme = Theme.of(context);
+    final primaryRed = theme.primaryColor;
+
     final List<FoodItem> canteenItems = [
-      FoodItem(
-        id: '1',
-        name: 'Veg Burger',
-        category: 'Canteen',
-        description: 'Fresh veg burger with cheese',
-        price: 40,
-        imageUrl: 'https://share.google/8T61KH0cmZ0gD7fsL',
-      ),
-      FoodItem(
-        id: '2',
-        name: 'Cheese Sandwich',
-        category: 'Canteen',
-        description: 'Grilled cheese sandwich',
-        price: 35,
-        imageUrl: 'https://share.google/aDIeQrNO15wPxnm3E',
-      ),
-      FoodItem(
-        id: '3',
-        name: 'French Fries',
-        category: 'Canteen',
-        description: 'Crispy french fries',
-        price: 30,
-        imageUrl: 'https://share.google/zVk9wvOv4rOg38d1q',
-      ),
-      FoodItem(
-        id: '4',
-        name: 'Veg Momos',
-        category: 'Canteen',
-        description: 'Steamed veg momos',
-        price: 50,
-        imageUrl: 'https://share.google/yG3iLZvBNwlywkcfA',
-      ),
-      FoodItem(
-        id: '5',
-        name: 'Paneer Roll',
-        category: 'Canteen',
-        description: 'Paneer wrap roll',
-        price: 60,
-        imageUrl: 'https://share.google/MHkCbSqbxUhvQnIky',
-      ),
-      FoodItem(
-        id: '6',
-        name: 'Veg Pizza',
-        category: 'Canteen',
-        description: 'Mini veg pizza',
-        price: 80,
-        imageUrl: 'https://share.google/MHkCbSqbxUhvQnIky',
-      ),
-      FoodItem(
-        id: '7',
-        name: 'Cold Coffee',
-        category: 'Canteen',
-        description: 'Chilled cold coffee',
-        price: 45,
-        imageUrl: 'https://i.imgur.com/QZyN5gS.png',
-      ),
-      FoodItem(
-        id: '8',
-        name: 'Tea',
-        category: 'Canteen',
-        description: 'Hot tea',
-        price: 10,
-        imageUrl: 'https://i.imgur.com/z2KJZtF.png',
-      ),
-      FoodItem(
-        id: '9',
-        name: 'Coffee',
-        category: 'Canteen',
-        description: 'Hot coffee',
-        price: 15,
-        imageUrl: 'https://i.imgur.com/5XkYzjL.png',
-      ),
-      FoodItem(
-        id: '10',
-        name: 'Veg Puff',
-        category: 'Canteen',
-        description: 'Baked veg puff',
-        price: 20,
-        imageUrl: 'https://i.imgur.com/vp9Jk3N.png',
-      ),
-      FoodItem(
-        id: '11',
-        name: 'Samosa',
-        category: 'Canteen',
-        description: 'Crispy samosa',
-        price: 15,
-        imageUrl: 'https://i.imgur.com/Z8yQxJf.png',
-      ),
-      FoodItem(
-        id: '12',
-        name: 'Maggi',
-        category: 'Canteen',
-        description: 'Hot maggi noodles',
-        price: 30,
-        imageUrl: 'https://i.imgur.com/8mVYt3h.png',
-      ),
+      FoodItem(id: 'c1', name: 'Sandwich Plain', category: 'Canteen', description: 'Freshly sliced healthy vegetable sandwich', price: 20, imageUrl: 'assets/images/grill sandwich.jpeg'),
+      FoodItem(id: 'c2', name: 'Sandwich Grilled', category: 'Canteen', description: 'Buttery toasted gourmet grilled sandwich', price: 30, imageUrl: 'assets/images/grill sandwich.jpeg'),
+      FoodItem(id: 'c3', name: 'White Sauce Pasta', category: 'Canteen', description: 'Creamy Italian style white sauce pasta', price: 40, imageUrl: 'assets/images/pasta.jpeg'),
+      FoodItem(id: 'c4', name: 'Noodles (Full)', category: 'Canteen', description: 'Stir-fried street style hakka noodles', price: 60, imageUrl: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=1984&auto=format&fit=crop'),
+      FoodItem(id: 'c6', name: 'Classic Samosa', category: 'Canteen', description: 'Crispy golden fried potato pastry', price: 10, imageUrl: 'assets/images/samosa.jpeg'),
+      FoodItem(id: 'c10', name: 'Bhatura Chana', category: 'Canteen', description: 'Fluffy fried bread with spicy curry', price: 40, imageUrl: 'assets/images/bhatura chana.jpeg'),
+      FoodItem(id: 'c13', name: 'Premium Burger', category: 'Canteen', description: 'Juicy vegetable patty with fresh salad', price: 40, imageUrl: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=2072&auto=format&fit=crop'),
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Canteen'),
-        centerTitle: true,
+      backgroundColor: Colors.white,
+      floatingActionButton: Consumer<CartProvider>(
+        builder: (context, cart, _) {
+          final canteenCount = cart.items.values.where((item) => cart.getNormalizedOutlet(item.foodItem.category) == 'Canteen').length;
+          if (canteenCount == 0) return const SizedBox.shrink();
+          return FloatingActionButton.extended(
+            backgroundColor: primaryRed,
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen(outletName: 'Canteen'))),
+            icon: const Icon(Icons.shopping_basket_rounded, color: Colors.white),
+            label: Text(
+              'View Cart ($canteenCount)',
+              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          );
+        },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: canteenItems.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-          ),
-          itemBuilder: (context, index) {
-            return ProductCard(
-              foodItem: canteenItems[index],
-            );
-          },
+      body: FadeTransition(
+        opacity: _fade,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true, expandedHeight: 220, backgroundColor: Colors.white, elevation: 0,
+              iconTheme: IconThemeData(color: primaryRed),
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                title: Text('CANTEEN MENU', style: GoogleFonts.metamorphous(color: primaryRed, fontSize: 18, fontWeight: FontWeight.bold)),
+                background: Stack(fit: StackFit.expand, children: [
+                  Image.asset('assets/images/canteen.jpeg', fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: Icon(Icons.restaurant, color: primaryRed, size: 50))),
+                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.8), Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
+                ]),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 10),
+                child: Text('Dashing Campus Bites', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18)),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 16, crossAxisSpacing: 16,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) => ProductCard(foodItem: canteenItems[index]), childCount: canteenItems.length),
+              ),
+            ),
+          ],
         ),
       ),
     );

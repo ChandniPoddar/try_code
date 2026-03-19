@@ -1,81 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import 'package:ggi_canteen/models/food_item.dart';
 import '../../widgets/product_card.dart';
+import '../../providers/cart_provider.dart';
+import 'cart_screen.dart';
 
-class FruitCornerScreen extends StatelessWidget {
+class FruitCornerScreen extends StatefulWidget {
   const FruitCornerScreen({super.key});
 
   @override
+  State<FruitCornerScreen> createState() => _FruitCornerScreenState();
+}
+
+class _FruitCornerScreenState extends State<FruitCornerScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryRed = theme.primaryColor;
+
     final List<FoodItem> fruitItems = [
-      FoodItem(
-        id: 'f1',
-        name: 'Apple',
-        category: 'Fruit Corner',
-        description: 'Fresh red apple',
-        price: 20,
-        imageUrl: '',
-      ),
-      FoodItem(
-        id: 'f2',
-        name: 'Banana',
-        category: 'Fruit Corner',
-        description: 'Healthy ripe banana',
-        price: 10,
-        imageUrl: '',
-      ),
-      FoodItem(
-        id: 'f3',
-        name: 'Orange',
-        category: 'Fruit Corner',
-        description: 'Juicy orange',
-        price: 15,
-        imageUrl: '',
-      ),
-      FoodItem(
-        id: 'f4',
-        name: 'Grapes',
-        category: 'Fruit Corner',
-        description: 'Fresh green grapes',
-        price: 25,
-        imageUrl: '',
-      ),
-      FoodItem(
-        id: 'f5',
-        name: 'Watermelon',
-        category: 'Fruit Corner',
-        description: 'Cool watermelon slices',
-        price: 30,
-        imageUrl: '',
-      ),
-      FoodItem(
-        id: 'f6',
-        name: 'Pineapple',
-        category: 'Fruit Corner',
-        description: 'Sweet pineapple',
-        price: 35,
-        imageUrl: '',
-      ),
+      FoodItem(id: 'fc1', name: 'Mosambi Juice', category: 'Fruit Corner', description: 'Freshly squeezed premium citrus', price: 50, imageUrl: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?q=80&w=1974&auto=format&fit=crop'),
+      FoodItem(id: 'fc2', name: 'Mix Juice', category: 'Fruit Corner', description: 'Optimal gourmet fruit blend', price: 40, imageUrl: 'https://images.unsplash.com/photo-1622597467827-43b0ef3c9a22?q=80&w=2070&auto=format&fit=crop'),
+      FoodItem(id: 'fc4', name: 'Pomegranate Juice', category: 'Fruit Corner', description: 'Luxury antioxidant ruby juice', price: 120, imageUrl: 'https://images.unsplash.com/photo-1541324904594-66ca8563497b?q=80&w=1974&auto=format&fit=crop'),
+      FoodItem(id: 'fc6', name: 'Banana Shake', category: 'Fruit Corner', description: 'Creamy artisanal banana blend', price: 30, imageUrl: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?q=80&w=2070&auto=format&fit=crop'),
+      FoodItem(id: 'fc7', name: 'Mango Shake', category: 'Fruit Corner', description: 'Velvety king of fruits shake', price: 30, imageUrl: 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?q=80&w=2070&auto=format&fit=crop'),
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Fruit Corner'),
-        centerTitle: true,
+      backgroundColor: Colors.white,
+      floatingActionButton: Consumer<CartProvider>(
+        builder: (context, cart, _) {
+          final fruitCount = cart.items.values.where((item) => cart.getNormalizedOutlet(item.foodItem.category) == 'Fruit Corner').length;
+          if (fruitCount == 0) return const SizedBox.shrink();
+          return FloatingActionButton.extended(
+            backgroundColor: primaryRed,
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen(outletName: 'Fruit Corner'))),
+            icon: const Icon(Icons.shopping_basket_rounded, color: Colors.white),
+            label: Text(
+              'View Cart ($fruitCount)',
+              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          );
+        },
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: GridView.builder(
-          itemCount: fruitItems.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.75,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-          ),
-          itemBuilder: (context, index) {
-            return ProductCard(foodItem: fruitItems[index]);
-          },
+      body: FadeTransition(
+        opacity: _fade,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true, expandedHeight: 220, backgroundColor: Colors.white, elevation: 0,
+              iconTheme: IconThemeData(color: primaryRed),
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                title: Text('FRUIT CORNER', style: GoogleFonts.metamorphous(color: primaryRed, fontSize: 18, fontWeight: FontWeight.bold)),
+                background: Stack(fit: StackFit.expand, children: [
+                  Image.asset('assets/images/fruit_corner.jpeg', fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: Icon(Icons.apple, color: primaryRed, size: 50))),
+                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.8), Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
+                ]),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 10),
+                child: Text('Fresh & Healthy Sips', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18)),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 16, crossAxisSpacing: 16,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) => ProductCard(foodItem: fruitItems[index]), childCount: fruitItems.length),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -17,6 +17,29 @@ class FoodItem {
     this.isAvailable = true,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'description': description,
+      'price': price,
+      'imageUrl': imageUrl,
+      'category': category,
+      'isAvailable': isAvailable,
+    };
+  }
+
+  factory FoodItem.fromMap(String id, Map<String, dynamic> map) {
+    return FoodItem(
+      id: id,
+      name: map['name'] ?? '',
+      description: map['description'] ?? '',
+      price: (map['price'] ?? 0.0).toDouble(),
+      imageUrl: map['imageUrl'] ?? '',
+      category: map['category'] ?? '',
+      isAvailable: map['isAvailable'] ?? true,
+    );
+  }
+
   // Mock data factory
   static List<FoodItem> getMockItems() {
     return [
@@ -48,21 +71,10 @@ class FoodItem {
         id: '4',
         name: 'Iced Coffee',
         description: 'Cold brewed coffee with milk/cream',
+        imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b5dd735a?w=500&q=80',
         price: 3.50,
-        imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b5dd7359?w=500&q=80',
         category: 'Beverage',
       ),
     ];
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'description': description,
-      'price': price,
-      'imageUrl': imageUrl,
-      'category': category,
-      'isAvailable': isAvailable,
-    };
   }
 }
