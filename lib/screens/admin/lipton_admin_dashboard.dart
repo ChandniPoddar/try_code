@@ -33,24 +33,24 @@ class _LiptonAdminDashboardState extends State<LiptonAdminDashboard> with Ticker
     super.dispose();
   }
 
+  Future<void> _updateOrderStatus(String docId, String currentStatus) async {
+    String nextStatus = 'Pending';
+    if (currentStatus == 'Pending') nextStatus = 'Preparing';
+    else if (currentStatus == 'Preparing') nextStatus = 'Completed';
+    else if (currentStatus == 'Completed') nextStatus = 'Pending';
+
+    await _db.collection('orders').doc(docId).update({'status': nextStatus});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryRed = theme.primaryColor;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(0.5, -0.6),
-                  radius: 1.2,
-                  colors: [const Color(0xFF1B5E20).withValues(alpha: 0.1), Colors.black],
-                ),
-              ),
-            ),
-          ),
-          
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -60,7 +60,9 @@ class _LiptonAdminDashboardState extends State<LiptonAdminDashboard> with Ticker
                     .orderBy('createdAt', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  int totalOrders = snapshot.hasData ? snapshot.data!.docs.length : 0;
+                  if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator(color: Color(0xFFE23744)));
+
+                  int totalOrders = snapshot.data?.docs.length ?? 0;
                   double dailyRevenue = 0;
                   if (snapshot.hasData) {
                     for (var doc in snapshot.data!.docs) {
@@ -71,24 +73,24 @@ class _LiptonAdminDashboardState extends State<LiptonAdminDashboard> with Ticker
                   return CustomScrollView(
                     physics: const BouncingScrollPhysics(),
                     slivers: [
-                      _buildHeader(context),
+                      _buildHeader(context, primaryRed),
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.all(24.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildSectionTitle("Tea Corner Insights"),
+                              Text("Outlet Insights", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
                               const SizedBox(height: 20),
-                              _buildStatsGrid(totalOrders, dailyRevenue),
+                              _buildStatsGrid(totalOrders, dailyRevenue, primaryRed),
                               const SizedBox(height: 32),
-                              _buildSectionTitle("Live Tea Queue"),
+                              Text("Live Order Queue", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
                               const SizedBox(height: 16),
                             ],
                           ),
                         ),
                       ),
-                      _buildOrdersList(snapshot),
+                      _buildOrdersList(snapshot.data?.docs ?? [], primaryRed),
                     ],
                   );
                 }
@@ -100,41 +102,17 @@ class _LiptonAdminDashboardState extends State<LiptonAdminDashboard> with Ticker
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, Color primaryRed) {
     return SliverAppBar(
-      expandedHeight: 200,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      pinned: true,
+      expandedHeight: 180, backgroundColor: Colors.white, pinned: true, elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            CachedNetworkImage(
-              imageUrl: "https://images.unsplash.com/photo-1544787210-2213d84ad96b?q=80&w=1963&auto=format&fit=crop",
-              fit: BoxFit.cover,
-            ),
-            Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.black.withValues(alpha: 0.2), Colors.black]))),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  Text("LIPTON", style: GoogleFonts.monoton(color: const Color(0xFFFFD700), fontSize: 42, letterSpacing: 4)),
-                  Text("PREMIUM TEA HUB", style: GoogleFonts.poppins(color: Colors.white60, fontSize: 12, letterSpacing: 2, fontWeight: FontWeight.w500)),
-                ],
-              ),
-            ),
-          ],
-        ),
+        centerTitle: true,
+        title: Text("LIPTON HUB", style: GoogleFonts.metamorphous(color: primaryRed, fontSize: 18, fontWeight: FontWeight.bold)),
+        background: Container(color: Colors.white),
       ),
       actions: [
         IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.black38, shape: BoxShape.circle, border: Border.all(color: const Color(0xFFFFD700).withValues(alpha: 0.5))),
-            child: const Icon(Icons.logout, color: Color(0xFFFFD700), size: 20),
-          ),
+          icon: Icon(Icons.logout_rounded, color: primaryRed),
           onPressed: () async {
             await context.read<AuthService>().logout();
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
@@ -145,82 +123,63 @@ class _LiptonAdminDashboardState extends State<LiptonAdminDashboard> with Ticker
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Row(
-      children: [
-        Container(width: 4, height: 24, color: const Color(0xFFFFD700)),
-        const SizedBox(width: 12),
-        Text(title, style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-
-  Widget _buildStatsGrid(int total, double revenue) {
+  Widget _buildStatsGrid(int total, double revenue, Color primaryRed) {
     return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: 1.5,
+      shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2, mainAxisSpacing: 16, crossAxisSpacing: 16, childAspectRatio: 1.6,
       children: [
-        _buildStatCard("Daily Revenue", "₹${revenue.toStringAsFixed(0)}", Icons.account_balance_wallet_outlined),
-        _buildStatCard("Total Tea", "$total", Icons.coffee_rounded),
-        _buildStatCard("Service", "Fast", Icons.speed_outlined),
-        _buildStatCard("Customers", "Live", Icons.people_outline),
+        _buildStatCard("Revenue", "₹${revenue.toStringAsFixed(0)}", Icons.payments_outlined, primaryRed),
+        _buildStatCard("Tea Sold", "$total", Icons.emoji_food_beverage_outlined, primaryRed),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon) {
+  Widget _buildStatCard(String label, String value, IconData icon, Color primaryRed) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white10)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey[200]!), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(icon, color: const Color(0xFFFFD700), size: 24),
+          Icon(icon, color: primaryRed, size: 20),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(value, style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
-            Text(label, style: GoogleFonts.poppins(color: Colors.white38, fontSize: 11)),
+            Text(value, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(label, style: GoogleFonts.poppins(color: Colors.grey, fontSize: 11)),
           ]),
         ],
       ),
     );
   }
 
-  Widget _buildOrdersList(AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-      return SliverToBoxAdapter(child: Center(child: Padding(padding: const EdgeInsets.only(top: 40), child: Text("No orders yet", style: GoogleFonts.poppins(color: Colors.white38)))));
-    }
-    final docs = snapshot.data!.docs;
+  Widget _buildOrdersList(List<QueryDocumentSnapshot> docs, Color primaryRed) {
+    if (docs.isEmpty) return SliverToBoxAdapter(child: Center(child: Padding(padding: const EdgeInsets.only(top: 40), child: Text("No orders yet", style: GoogleFonts.poppins(color: Colors.grey)))));
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverList(delegate: SliverChildBuilderDelegate((context, index) {
-        final order = docs[index].data() as Map<String, dynamic>;
-        return _buildOrderCard(order, index);
+        final doc = docs[index];
+        final order = doc.data() as Map<String, dynamic>;
+        final String status = order['status'] ?? 'Pending';
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey[100]!), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)]),
+          child: Row(children: [
+            Icon(Icons.coffee_outlined, color: primaryRed, size: 30),
+            const SizedBox(width: 16),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text("Order #${order['orderId']?.toString().split('-').last ?? '...'}", style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+              Text("${order['items']?.length ?? 0} items • ₹${order['total']}", style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
+            ])),
+            GestureDetector(
+              onTap: () => _updateOrderStatus(doc.id, status),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: primaryRed.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                child: Text(status, style: GoogleFonts.poppins(color: primaryRed, fontSize: 10, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ]),
+        );
       }, childCount: docs.length)),
-    );
-  }
-
-  Widget _buildOrderCard(Map<String, dynamic> order, int index) {
-    final List items = order['items'] ?? [];
-    final String itemsSummary = items.map((i) => "${i['quantity']}x ${i['name']}").join(", ");
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16), padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF1A1A1A), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white.withValues(alpha: 0.05))),
-      child: Row(children: [
-        Container(width: 50, height: 50, decoration: BoxDecoration(color: const Color(0xFFFFD700).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.emoji_food_beverage_outlined, color: Color(0xFFFFD700))),
-        const SizedBox(width: 16),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text("Order ${order['orderId']?.toString().split('-').last ?? '...'}", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold)),
-          Text(itemsSummary, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(color: Colors.white60, fontSize: 12)),
-        ])),
-        Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text("₹${order['total']}", style: GoogleFonts.poppins(color: const Color(0xFFFFD700), fontWeight: FontWeight.bold)),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)), child: Text(order['status'] ?? "Pending", style: GoogleFonts.poppins(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold))),
-        ]),
-      ]),
     );
   }
 }

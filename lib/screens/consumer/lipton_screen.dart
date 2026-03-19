@@ -21,10 +21,7 @@ class _LiptonScreenState extends State<LiptonScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
   }
@@ -38,7 +35,7 @@ class _LiptonScreenState extends State<LiptonScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
+    final primaryRed = theme.primaryColor;
 
     final List<FoodItem> liptonItems = [
       FoodItem(id: 'l1', name: 'Ice Tea Lemon', category: 'Lipton', description: 'Refreshing lemon ice tea', price: 25, imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=1964&auto=format&fit=crop'),
@@ -52,18 +49,18 @@ class _LiptonScreenState extends State<LiptonScreen> with SingleTickerProviderSt
     ];
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       floatingActionButton: Consumer<CartProvider>(
         builder: (context, cart, _) {
-          final liptonCount = cart.items.values.where((item) => item.foodItem.category == 'Lipton').length;
+          final liptonCount = cart.items.values.where((item) => cart.getNormalizedOutlet(item.foodItem.category) == 'Lipton').length;
           if (liptonCount == 0) return const SizedBox.shrink();
           return FloatingActionButton.extended(
-            backgroundColor: primaryColor,
+            backgroundColor: primaryRed,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen(outletName: 'Lipton'))),
-            icon: Icon(Icons.emoji_food_beverage_rounded, color: theme.brightness == Brightness.dark ? Colors.black : Colors.white),
+            icon: const Icon(Icons.shopping_basket_rounded, color: Colors.white),
             label: Text(
-              'Lipton Cart ($liptonCount)',
-              style: GoogleFonts.poppins(color: theme.brightness == Brightness.dark ? Colors.black : Colors.white, fontWeight: FontWeight.bold),
+              'View Cart ($liptonCount)',
+              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           );
         },
@@ -74,58 +71,28 @@ class _LiptonScreenState extends State<LiptonScreen> with SingleTickerProviderSt
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
-              pinned: true,
-              expandedHeight: 200,
-              backgroundColor: theme.appBarTheme.backgroundColor,
-              iconTheme: theme.appBarTheme.iconTheme,
+              pinned: true, expandedHeight: 220, backgroundColor: Colors.white, elevation: 0,
+              iconTheme: IconThemeData(color: primaryRed),
               flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  'Lipton Corner',
-                  style: GoogleFonts.poppins(
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    CachedNetworkImage(
-                      imageUrl: "https://images.unsplash.com/photo-1515696455671-046a7c98094b?q=80&w=2070&auto=format&fit=crop",
-                      fit: BoxFit.cover,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            // 🌟 Optimized: Reduced fog opacity
-                            theme.scaffoldBackgroundColor.withValues(alpha: 0.15),
-                            Colors.transparent,
-                            theme.scaffoldBackgroundColor
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                centerTitle: true,
+                title: Text('LIPTON CORNER', style: GoogleFonts.metamorphous(color: primaryRed, fontSize: 18, fontWeight: FontWeight.bold)),
+                background: Stack(fit: StackFit.expand, children: [
+                  CachedNetworkImage(imageUrl: "https://images.unsplash.com/photo-1515696455671-046a7c98094b?q=80&w=2070&auto=format&fit=crop", fit: BoxFit.cover),
+                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.8), Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
+                ]),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 10),
+                child: Text('Fresh Brews & Snacks', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18)),
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.7,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return ProductCard(foodItem: liptonItems[index]);
-                  },
-                  childCount: liptonItems.length,
-                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 16, crossAxisSpacing: 16),
+                delegate: SliverChildBuilderDelegate((context, index) => ProductCard(foodItem: liptonItems[index]), childCount: liptonItems.length),
               ),
             ),
           ],

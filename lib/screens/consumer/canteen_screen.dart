@@ -35,7 +35,7 @@ class _CanteenScreenState extends State<CanteenScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
+    final primaryRed = theme.primaryColor;
 
     final List<FoodItem> canteenItems = [
       FoodItem(id: 'c1', name: 'Sandwich Plain', category: 'Canteen', description: 'Freshly sliced healthy vegetable sandwich', price: 20, imageUrl: 'assets/images/grill sandwich.jpeg'),
@@ -48,17 +48,17 @@ class _CanteenScreenState extends State<CanteenScreen> with SingleTickerProvider
     ];
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       floatingActionButton: Consumer<CartProvider>(
         builder: (context, cart, _) {
-          final canteenCount = cart.items.values.where((item) => item.foodItem.category == 'Canteen').length;
+          final canteenCount = cart.items.values.where((item) => cart.getNormalizedOutlet(item.foodItem.category) == 'Canteen').length;
           if (canteenCount == 0) return const SizedBox.shrink();
           return FloatingActionButton.extended(
-            backgroundColor: primaryColor,
+            backgroundColor: primaryRed,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen(outletName: 'Canteen'))),
-            icon: Icon(Icons.shopping_basket_rounded, color: Colors.white),
+            icon: const Icon(Icons.shopping_basket_rounded, color: Colors.white),
             label: Text(
-              'Canteen Cart ($canteenCount)',
+              'View Cart ($canteenCount)',
               style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           );
@@ -70,63 +70,30 @@ class _CanteenScreenState extends State<CanteenScreen> with SingleTickerProvider
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
-              pinned: true,
-              expandedHeight: 250,
-              backgroundColor: theme.appBarTheme.backgroundColor,
-              iconTheme: theme.appBarTheme.iconTheme,
+              pinned: true, expandedHeight: 220, backgroundColor: Colors.white, elevation: 0,
+              iconTheme: IconThemeData(color: primaryRed),
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
-                title: Text(
-                  'GLOBAL CANTEEN',
-                  style: GoogleFonts.monoton(
-                    color: primaryColor,
-                    fontSize: 18,
-                    letterSpacing: 2,
-                  ),
-                ),
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(
-                      'assets/images/canteen.jpeg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[900],
-                        child: Icon(Icons.restaurant, color: primaryColor, size: 50),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.scaffoldBackgroundColor.withValues(alpha: 0.7),
-                            Colors.transparent,
-                            theme.scaffoldBackgroundColor
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                title: Text('CANTEEN MENU', style: GoogleFonts.metamorphous(color: primaryRed, fontSize: 18, fontWeight: FontWeight.bold)),
+                background: Stack(fit: StackFit.expand, children: [
+                  Image.asset('assets/images/canteen.jpeg', fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: Icon(Icons.restaurant, color: primaryRed, size: 50))),
+                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.8), Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
+                ]),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 10),
+                child: Text('Dashing Campus Bites', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18)),
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 100),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
+                  crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 16, crossAxisSpacing: 16,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return ProductCard(foodItem: canteenItems[index]);
-                  },
-                  childCount: canteenItems.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) => ProductCard(foodItem: canteenItems[index]), childCount: canteenItems.length),
               ),
             ),
           ],

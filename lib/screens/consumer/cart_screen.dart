@@ -101,9 +101,9 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
+    final primaryOrange = theme.primaryColor;
+    final secondaryBlue = theme.colorScheme.secondary;
     final textColor = theme.colorScheme.onSurface;
-    final subTextColor = textColor.withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -122,31 +122,16 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
               slivers: [
                 SliverAppBar(
                   pinned: true,
-                  expandedHeight: 240,
-                  backgroundColor: theme.appBarTheme.backgroundColor,
-                  iconTheme: theme.appBarTheme.iconTheme,
+                  expandedHeight: 200,
+                  backgroundColor: Colors.white,
+                  iconTheme: IconThemeData(color: textColor),
                   flexibleSpace: FlexibleSpaceBar(
                     centerTitle: true,
                     title: Text(
-                      widget.outletName == null ? 'GLOBAL CART' : '${widget.outletName!.toUpperCase()} CART',
-                      style: GoogleFonts.monoton(color: primaryColor, fontSize: 16, letterSpacing: 2),
+                      widget.outletName == null ? 'GLOBAL CART' : '${widget.outletName!.toUpperCase()} ITEMS',
+                      style: GoogleFonts.poppins(color: textColor, fontSize: 16, fontWeight: FontWeight.w800),
                     ),
-                    background: Stack(fit: StackFit.expand, children: [
-                      CachedNetworkImage(imageUrl: _getOutletImage(), fit: BoxFit.cover),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              theme.scaffoldBackgroundColor.withValues(alpha: 0.2),
-                              Colors.transparent,
-                              theme.scaffoldBackgroundColor
-                            ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
-                      ),
-                    ]),
+                    background: CachedNetworkImage(imageUrl: _getOutletImage(), fit: BoxFit.cover),
                   ),
                 ),
                 if (items.isEmpty)
@@ -155,74 +140,50 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.shopping_cart_outlined, size: 80, color: primaryColor.withValues(alpha: 0.2)),
+                          Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[300]),
                           const SizedBox(height: 16),
-                          Text('Your cart is clear and elegant.', style: GoogleFonts.poppins(color: subTextColor, fontSize: 16, fontWeight: FontWeight.w500)),
+                          Text('Cart is empty. Time to refill!', style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 16)),
                         ],
                       ),
                     ),
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final cartItem = items[index];
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: theme.cardTheme.color,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: primaryColor.withValues(alpha: 0.05)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: primaryColor.withValues(alpha: theme.brightness == Brightness.dark ? 0.3 : 0.08),
-                                  blurRadius: 15,
-                                  offset: const Offset(0, 6),
-                                )
-                              ],
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.withOpacity(0.1)),
                             ),
                             child: Row(children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 10)]
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(18),
-                                  child: CachedNetworkImage(
-                                    imageUrl: cartItem.foodItem.imageUrl,
-                                    width: 85,
-                                    height: 85,
-                                    fit: BoxFit.cover,
-                                    errorWidget: (context, url, error) => Icon(Icons.fastfood, color: primaryColor, size: 30),
-                                  ),
-                                ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: CachedNetworkImage(imageUrl: cartItem.foodItem.imageUrl, width: 60, height: 60, fit: BoxFit.cover),
                               ),
-                              const SizedBox(width: 18),
+                              const SizedBox(width: 15),
                               Expanded(
                                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                  Text(cartItem.foodItem.name, style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                                  const SizedBox(height: 4),
-                                  Text('₹${cartItem.foodItem.price} per unit', style: GoogleFonts.poppins(color: subTextColor, fontSize: 13)),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      _buildQuantityBtn(Icons.remove, () => cart.removeSingleItem(cartItem.foodItem.id), theme),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                                        child: Text('${cartItem.quantity}', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                                      ),
-                                      _buildQuantityBtn(Icons.add, () => cart.addItem(cartItem.foodItem), theme),
-                                    ],
-                                  ),
+                                  Text(cartItem.foodItem.name, style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.bold, fontSize: 14)),
+                                  Text('₹${cartItem.foodItem.price}', style: GoogleFonts.poppins(color: Colors.grey, fontSize: 12)),
                                 ]),
                               ),
-                              Text(
-                                '₹${(cartItem.foodItem.price * cartItem.quantity).toStringAsFixed(0)}',
-                                style: GoogleFonts.poppins(color: primaryColor, fontWeight: FontWeight.bold, fontSize: 18),
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(children: [
+                                  IconButton(icon: Icon(Icons.remove, size: 16, color: primaryOrange), onPressed: () => cart.removeSingleItem(cartItem.foodItem.id)),
+                                  Text('${cartItem.quantity}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  IconButton(icon: Icon(Icons.add, size: 16, color: primaryOrange), onPressed: () => cart.addItem(cartItem.foodItem)),
+                                ]),
                               ),
                             ]),
                           );
@@ -234,25 +195,18 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                 if (items.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.all(28),
-                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-                      decoration: BoxDecoration(
-                        color: theme.cardTheme.color,
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: primaryColor.withValues(alpha: 0.15), width: 1.5),
-                        boxShadow: [
-                          BoxShadow(color: primaryColor.withValues(alpha: 0.1), blurRadius: 25, offset: const Offset(0, 10))
-                        ],
-                      ),
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.withOpacity(0.1))),
                       child: Column(children: [
                         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                          Text('Order Total', style: GoogleFonts.poppins(color: subTextColor, fontSize: 16, fontWeight: FontWeight.w500)),
-                          Text('₹${totalAmount.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: primaryColor, fontSize: 28, fontWeight: FontWeight.bold)),
+                          Text('To Pay', style: GoogleFonts.poppins(color: textColor, fontWeight: FontWeight.w800, fontSize: 18)),
+                          Text('₹${totalAmount.toStringAsFixed(2)}', style: GoogleFonts.poppins(color: secondaryBlue, fontSize: 20, fontWeight: FontWeight.w900)),
                         ]),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
-                          height: 60,
+                          height: 55,
                           child: ElevatedButton(
                             onPressed: () async {
                               if (Platform.isAndroid || Platform.isIOS) {
@@ -260,13 +214,13 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                               } else {
                                 final error = await cart.placeOrder(specificOutlet: widget.outletName);
                                 if (error == null) {
-                                  Fluttertoast.showToast(msg: "Order Placed! Bon Appétit.");
+                                  Fluttertoast.showToast(msg: "Order Placed! Arriving soon.");
                                   if (!mounted) return;
                                   Navigator.pop(context);
                                 }
                               }
                             },
-                            child: const Text('COMPLETE PAYMENT'),
+                            child: const Text('PROCEED TO PAY'),
                           ),
                         ),
                       ]),
@@ -277,20 +231,6 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildQuantityBtn(IconData icon, VoidCallback onTap, ThemeData theme) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: theme.primaryColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: theme.primaryColor, size: 18),
       ),
     );
   }

@@ -20,20 +20,11 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
+    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500));
     _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
-
-    _buttonController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _buttonController, curve: Curves.elasticOut),
-    );
-
+    _buttonController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _buttonController, curve: Curves.elasticOut));
+    
     _fadeController.forward();
     _buttonController.forward();
   }
@@ -47,8 +38,11 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryRed = theme.primaryColor;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           // Background Image
@@ -56,9 +50,9 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
             child: CachedNetworkImage(
               imageUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=2070&auto=format&fit=crop",
               fit: BoxFit.cover,
-              color: Colors.black.withValues(alpha: 0.6),
-              colorBlendMode: BlendMode.darken,
-              placeholder: (context, url) => Container(color: Colors.black),
+              color: Colors.white.withOpacity(0.4),
+              colorBlendMode: BlendMode.lighten,
+              placeholder: (context, url) => Container(color: Colors.white),
             ),
           ),
 
@@ -70,9 +64,9 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.8),
-                    Colors.black,
+                    Colors.white.withOpacity(0.1),
+                    Colors.white.withOpacity(0.8),
+                    Colors.white,
                   ],
                 ),
               ),
@@ -95,19 +89,19 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFFFD700), width: 2),
+                            color: Colors.white,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFFD700).withValues(alpha: 0.2),
-                                blurRadius: 20,
-                                spreadRadius: 5,
+                                color: primaryRed.withOpacity(0.15),
+                                blurRadius: 30,
+                                spreadRadius: 10,
                               )
                             ],
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.restaurant_menu_rounded,
                             size: 80,
-                            color: Color(0xFFFFD700),
+                            color: primaryRed,
                           ),
                         ),
                       ),
@@ -115,18 +109,20 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
 
                       Text(
                         "GLOBAL EATS",
-                        style: GoogleFonts.monoton(
-                          color: const Color(0xFFFFD700),
-                          fontSize: 32,
-                          letterSpacing: 3,
+                        style: GoogleFonts.metamorphous(
+                          color: primaryRed,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "Choose your portal to excellence",
+                        "Premium Food Experience",
                         style: GoogleFonts.poppins(
-                          color: Colors.white70,
+                          color: Colors.grey[600],
                           fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: 1,
                         ),
                       ),
@@ -134,6 +130,7 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
 
                       // User Login Button
                       _buildAnimatedButton(
+                        context,
                         title: "LOGIN FOR USER ONLY",
                         icon: Icons.person_outline_rounded,
                         onTap: () {
@@ -147,6 +144,7 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
 
                       // Operator Login Button
                       _buildAnimatedButton(
+                        context,
                         title: "LOGIN FOR OPERATOR ONLY",
                         icon: Icons.admin_panel_settings_outlined,
                         isOperator: true,
@@ -168,37 +166,34 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
     );
   }
 
-  Widget _buildAnimatedButton({
+  Widget _buildAnimatedButton(
+    BuildContext context, {
     required String title,
     required IconData icon,
     required VoidCallback onTap,
     bool isOperator = false,
   }) {
+    final primaryRed = Theme.of(context).primaryColor;
     return ScaleTransition(
       scale: _scaleAnimation,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           width: double.infinity,
-          height: 65,
+          height: 60,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isOperator
-                  ? [const Color(0xFFFFD700), const Color(0xFFB8860B)]
-                  : [Colors.white10, Colors.white.withValues(alpha: 0.05)],
-            ),
-            borderRadius: BorderRadius.circular(20),
+            color: isOperator ? primaryRed : Colors.white,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isOperator ? Colors.transparent : const Color(0xFFFFD700).withValues(alpha: 0.5),
+              color: isOperator ? Colors.transparent : primaryRed.withOpacity(0.3),
               width: 1.5,
             ),
             boxShadow: [
-              if (isOperator)
-                BoxShadow(
-                  color: const Color(0xFFFFD700).withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                )
+              BoxShadow(
+                color: isOperator ? primaryRed.withOpacity(0.3) : Colors.black.withOpacity(0.05),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              )
             ],
           ),
           child: Row(
@@ -206,16 +201,16 @@ class _OperatorUserScreenState extends State<OperatorUserScreen> with TickerProv
             children: [
               Icon(
                 icon,
-                color: isOperator ? Colors.black : const Color(0xFFFFD700),
+                color: isOperator ? Colors.white : primaryRed,
               ),
               const SizedBox(width: 15),
               Text(
                 title,
                 style: GoogleFonts.poppins(
-                  color: isOperator ? Colors.black : Colors.white,
+                  color: isOperator ? Colors.white : primaryRed,
                   fontWeight: FontWeight.bold,
-                  fontSize: 15,
-                  letterSpacing: 1,
+                  fontSize: 14,
+                  letterSpacing: 0.5,
                 ),
               ),
             ],

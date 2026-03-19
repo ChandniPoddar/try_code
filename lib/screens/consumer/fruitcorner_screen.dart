@@ -21,10 +21,7 @@ class _FruitCornerScreenState extends State<FruitCornerScreen> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
   }
@@ -38,7 +35,7 @@ class _FruitCornerScreenState extends State<FruitCornerScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
+    final primaryRed = theme.primaryColor;
 
     final List<FoodItem> fruitItems = [
       FoodItem(id: 'fc1', name: 'Mosambi Juice', category: 'Fruit Corner', description: 'Freshly squeezed premium citrus', price: 50, imageUrl: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?q=80&w=1974&auto=format&fit=crop'),
@@ -49,18 +46,18 @@ class _FruitCornerScreenState extends State<FruitCornerScreen> with SingleTicker
     ];
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       floatingActionButton: Consumer<CartProvider>(
         builder: (context, cart, _) {
-          final fruitCount = cart.items.values.where((item) => item.foodItem.category == 'Fruit Corner').length;
+          final fruitCount = cart.items.values.where((item) => cart.getNormalizedOutlet(item.foodItem.category) == 'Fruit Corner').length;
           if (fruitCount == 0) return const SizedBox.shrink();
           return FloatingActionButton.extended(
-            backgroundColor: primaryColor,
+            backgroundColor: primaryRed,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen(outletName: 'Fruit Corner'))),
-            icon: Icon(Icons.shopping_basket_rounded, color: theme.brightness == Brightness.dark ? Colors.black : Colors.white),
+            icon: const Icon(Icons.shopping_basket_rounded, color: Colors.white),
             label: Text(
-              'Fruit Cart ($fruitCount)',
-              style: GoogleFonts.poppins(color: theme.brightness == Brightness.dark ? Colors.black : Colors.white, fontWeight: FontWeight.bold),
+              'View Cart ($fruitCount)',
+              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           );
         },
@@ -71,63 +68,30 @@ class _FruitCornerScreenState extends State<FruitCornerScreen> with SingleTicker
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
-              pinned: true,
-              expandedHeight: 250,
-              backgroundColor: theme.appBarTheme.backgroundColor,
-              iconTheme: theme.appBarTheme.iconTheme,
+              pinned: true, expandedHeight: 220, backgroundColor: Colors.white, elevation: 0,
+              iconTheme: IconThemeData(color: primaryRed),
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
-                title: Text(
-                  'GLOBAL FRUIT BAR',
-                  style: GoogleFonts.monoton(
-                    color: primaryColor,
-                    fontSize: 18,
-                    letterSpacing: 2,
-                  ),
-                ),
-                background: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.asset(
-                      'assets/images/fruit_corner.jpeg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[900],
-                        child: Icon(Icons.apple, color: primaryColor, size: 50),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.scaffoldBackgroundColor.withValues(alpha: 0.7),
-                            Colors.transparent,
-                            theme.scaffoldBackgroundColor
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                title: Text('FRUIT CORNER', style: GoogleFonts.metamorphous(color: primaryRed, fontSize: 18, fontWeight: FontWeight.bold)),
+                background: Stack(fit: StackFit.expand, children: [
+                  Image.asset('assets/images/fruit_corner.jpeg', fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: Icon(Icons.apple, color: primaryRed, size: 50))),
+                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.1), Colors.white.withValues(alpha: 0.8), Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
+                ]),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 10),
+                child: Text('Fresh & Healthy Sips', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18)),
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 100),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
+                  crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 16, crossAxisSpacing: 16,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return ProductCard(foodItem: fruitItems[index]);
-                  },
-                  childCount: fruitItems.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) => ProductCard(foodItem: fruitItems[index]), childCount: fruitItems.length),
               ),
             ),
           ],

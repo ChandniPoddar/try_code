@@ -35,7 +35,7 @@ class _NescafeScreenState extends State<NescafeScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final primaryColor = theme.primaryColor;
+    final primaryRed = theme.primaryColor;
 
     final List<FoodItem> nescafeItems = [
       FoodItem(id: 'n1', name: 'Nescafe Cappuccino', category: 'Nescafe', description: 'Rich and creamy Italian cappuccino', price: 20, imageUrl: 'https://images.unsplash.com/photo-1534778101976-62847782c213?q=80&w=1974&auto=format&fit=crop'),
@@ -47,16 +47,19 @@ class _NescafeScreenState extends State<NescafeScreen> with SingleTickerProvider
     ];
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Colors.white,
       floatingActionButton: Consumer<CartProvider>(
         builder: (context, cart, _) {
-          final nescafeCount = cart.items.values.where((item) => item.foodItem.category == 'Nescafe').length;
+          final nescafeCount = cart.items.values.where((item) => cart.getNormalizedOutlet(item.foodItem.category) == 'Nescafe').length;
           if (nescafeCount == 0) return const SizedBox.shrink();
           return FloatingActionButton.extended(
-            backgroundColor: primaryColor,
+            backgroundColor: primaryRed,
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen(outletName: 'Nescafe'))),
-            icon: Icon(Icons.shopping_basket_rounded, color: theme.brightness == Brightness.dark ? Colors.black : Colors.white),
-            label: Text('Nescafe Cart (\$nescafeCount)', style: GoogleFonts.poppins(color: theme.brightness == Brightness.dark ? Colors.black : Colors.white, fontWeight: FontWeight.bold)),
+            icon: const Icon(Icons.shopping_basket_rounded, color: Colors.white),
+            label: Text(
+              'View Cart ($nescafeCount)',
+              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
           );
         },
       ),
@@ -66,21 +69,69 @@ class _NescafeScreenState extends State<NescafeScreen> with SingleTickerProvider
           physics: const BouncingScrollPhysics(),
           slivers: [
             SliverAppBar(
-              pinned: true, expandedHeight: 250, backgroundColor: theme.appBarTheme.backgroundColor, iconTheme: theme.appBarTheme.iconTheme,
+              pinned: true,
+              expandedHeight: 220,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              iconTheme: IconThemeData(color: primaryRed),
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
-                title: Text('NESCAFE HUB', style: GoogleFonts.monoton(color: primaryColor, fontSize: 18, letterSpacing: 2)),
-                background: Stack(fit: StackFit.expand, children: [
-                  CachedNetworkImage(imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1974&auto=format&fit=crop", fit: BoxFit.cover),
-                  Container(decoration: BoxDecoration(gradient: LinearGradient(colors: [theme.scaffoldBackgroundColor.withValues(alpha: 0.7), Colors.transparent, theme.scaffoldBackgroundColor], begin: Alignment.topCenter, end: Alignment.bottomCenter))),
-                ]),
+                title: Text(
+                  'NESCAFÉ HUB',
+                  style: GoogleFonts.metamorphous(
+                    color: primaryRed,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                background: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1974&auto=format&fit=crop",
+                      fit: BoxFit.cover,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.1),
+                            Colors.white.withValues(alpha: 0.8),
+                            Colors.white,
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 10),
+                child: Text(
+                  'Bestsellers in Hot Brews',
+                  style: theme.textTheme.titleLarge?.copyWith(fontSize: 18),
+                ),
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 100),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, mainAxisSpacing: 16, crossAxisSpacing: 16),
-                delegate: SliverChildBuilderDelegate((context, index) => ProductCard(foodItem: nescafeItems[index]), childCount: nescafeItems.length),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    return ProductCard(foodItem: nescafeItems[index]);
+                  },
+                  childCount: nescafeItems.length,
+                ),
               ),
             ),
           ],
