@@ -17,15 +17,7 @@ void main() async {
   } catch (e) {
     debugPrint("Firebase initialization error: \$e");
   }
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
-        ChangeNotifierProvider<CartProvider>(create: (_) => CartProvider()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -33,93 +25,89 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 🌟 Zomato-Inspired Dashing Palette (Strictly Light Mode)
-    const Color gourmetCream = Color(0xFFFDF8F5); 
-    const Color velvetBurgundy = Color(0xFF6B0F1A);
-    const Color warmTerracotta = Color(0xFFBC4749);
-    const Color deepSlate = Color(0xFF2D3436);
+    // 🌟 Zomato-Inspired Dashing Dining Palette
+    const Color zomatoRed = Color(0xFFE23744); 
+    const Color softPearl = Color(0xFFFDFBF7); // Anti-glare soft background
+    const Color pureWhite = Color(0xFFFFFFFF);
+    const Color textDeep = Color(0xFF2D3436);
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Global Eats',
-      themeMode: ThemeMode.light, // 🌟 Force Light Mode
-      
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        primaryColor: velvetBurgundy,
-        scaffoldBackgroundColor: gourmetCream,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthService>(create: (_) => AuthService()),
+        ChangeNotifierProvider<CartProvider>(create: (_) => CartProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Global Eats',
+        themeMode: ThemeMode.light, // 🌟 Force Light Mode only
         
-        colorScheme: ColorScheme.light(
-          primary: velvetBurgundy,
-          secondary: warmTerracotta,
-          surface: Colors.white,
-          onSurface: deepSlate,
-        ),
+        theme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.light,
+          primaryColor: zomatoRed,
+          scaffoldBackgroundColor: softPearl,
+          
+          colorScheme: const ColorScheme.light(
+            primary: zomatoRed,
+            secondary: Color(0xFF006491), // Domino's Blue for accents
+            surface: pureWhite,
+            onSurface: textDeep,
+          ),
 
-        // Professional Typography
-        textTheme: GoogleFonts.poppinsTextTheme().apply(
-          bodyColor: deepSlate,
-          displayColor: velvetBurgundy,
-        ).copyWith(
-          displayLarge: GoogleFonts.metamorphous(color: velvetBurgundy, fontWeight: FontWeight.bold),
-          titleLarge: GoogleFonts.poppins(fontWeight: FontWeight.w700, color: deepSlate),
-          bodyLarge: GoogleFonts.poppins(color: deepSlate, letterSpacing: 0.2),
-        ),
+          // Professional Stylish Typography
+          textTheme: GoogleFonts.poppinsTextTheme().apply(
+            bodyColor: textDeep,
+            displayColor: textDeep,
+          ).copyWith(
+            displayLarge: GoogleFonts.metamorphous(color: zomatoRed, fontWeight: FontWeight.bold),
+            titleLarge: GoogleFonts.poppins(fontWeight: FontWeight.w800, color: textDeep, fontSize: 22),
+            bodyLarge: GoogleFonts.poppins(color: textDeep, letterSpacing: 0.1),
+          ),
 
-        appBarTheme: AppBarTheme(
-          backgroundColor: gourmetCream,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: GoogleFonts.poppins(
-            color: velvetBurgundy, 
-            fontSize: 22, 
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1
+          appBarTheme: const AppBarTheme(
+            backgroundColor: softPearl,
+            elevation: 0,
+            centerTitle: false,
+            titleTextStyle: TextStyle(color: textDeep, fontSize: 20, fontWeight: FontWeight.bold),
+            iconTheme: IconThemeData(color: zomatoRed),
           ),
-          iconTheme: const IconThemeData(color: velvetBurgundy),
-        ),
 
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 8,
-          shadowColor: velvetBurgundy.withValues(alpha: 0.08),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: velvetBurgundy.withValues(alpha: 0.05)),
+          cardTheme: CardThemeData(
+            color: pureWhite,
+            elevation: 2,
+            shadowColor: zomatoRed.withOpacity(0.05),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: textDeep.withOpacity(0.05), width: 1),
+            ),
           ),
-        ),
 
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: velvetBurgundy,
-            foregroundColor: Colors.white,
-            elevation: 4,
-            shadowColor: velvetBurgundy.withValues(alpha: 0.3),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-            textStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold, letterSpacing: 1),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: zomatoRed,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+              textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w700, letterSpacing: 0.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
-        ),
 
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(color: velvetBurgundy.withValues(alpha: 0.1)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: BorderSide(color: velvetBurgundy.withValues(alpha: 0.1)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
-            borderSide: const BorderSide(color: velvetBurgundy, width: 1.5),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: pureWhite,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: textDeep.withOpacity(0.1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: zomatoRed, width: 1.5),
+            ),
           ),
         ),
+        home: const SplashScreen(),
       ),
-      home: const SplashScreen(),
     );
   }
 }
